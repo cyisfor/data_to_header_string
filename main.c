@@ -3,7 +3,7 @@
 #include <ctype.h> // isprint
 #include <string.h> // strlen
 #include <stdbool.h>
-#define PUTLIT(l) fwrite(l,sizeof(l),1,stdout)
+#define PUTLIT(l) fwrite(l,sizeof(l)-1,1,stdout)
 
 int main(int argc, char** argv) {
 	const char* name = getenv("name");
@@ -15,34 +15,40 @@ int main(int argc, char** argv) {
 	fseek(stdin,SEEK_SET,0);
 
 	printf("const unsigned long %sSize = 0x%xL;\n",name,size);
-	printf("const unsigned char %s[] = \"",name);
-	char last;
+	printf("const unsigned char %s[] = \n\"",name);
+	char last = 0;
 	bool checknext = false;
+	unsigned char count = 0;
 	for(;;) {
 		char c = getc(stdin);
 		if(checknext) {
-			if(c==EOF) {
-				printf("%o",last);
+			if(feof(stdin)) {
+				count += printf("%hho",last);
 				break;
-			} else if(c < '0' || c > '7') {
-				printf("%o",last);
+			} else if(count > 60 || c < '0' || c > '7') {
+				count += printf("%hho",last);
 			} else {
-				printf(">%03o<",last);
-				putchar(c);
-				exit(3);
+				count += printf("%03hho",last);
 			}
 			checknext = false;
+		} else if(feof(stdin)) break;
+
+		if(count > 60) {
+			count = 0;
+			PUTLIT("\"\n\"");
 		}
 
-		if(c == EOF) break;
-		if(isprint(c) && c != '"')
+		if(isprint(c) && c != '"') {
 			putchar(c);
-		else {
+			++count;
+		} else {
 			fputc('\\',stdout);
+			++count;
 			switch(c) {
-			case 0: fputc('0',stdout);
-			case '\\': fputc('\\',stdout);
-			case '"': fputc('"',stdout);
+#define DO(herp,derp) case herp: fputc(derp,stdout); ++count; break
+				DO(0,'0');
+				DO('\\','\\');
+				DO('"','"');
 #include "specialescapes.c"
 			default:
 				checknext = true;
