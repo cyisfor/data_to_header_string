@@ -2,7 +2,7 @@
 #include <stdlib.h> // exit
 #include <ctype.h> // isprint
 #include <string.h> // strlen
-
+#include <stdbool.h>
 #define PUTLIT(l) fwrite(l,sizeof(l),1,stdout)
 
 int main(int argc, char** argv) {
@@ -16,33 +16,38 @@ int main(int argc, char** argv) {
 
 	printf("const unsigned long %sSize = 0x%xL;\n",name,size);
 	printf("const unsigned char %s[] = \"",name);
+	char last;
+	bool checknext = false;
 	for(;;) {
 		char c = getc(stdin);
+		if(checknext) {
+			if(c==EOF) {
+				printf("%o",last);
+				break;
+			} else if(c < '0' || c > '7') {
+				printf("%o",last);
+			} else {
+				printf(">%03o<",last);
+				putchar(c);
+				exit(3);
+			}
+			checknext = false;
+		}
+
 		if(c == EOF) break;
 		if(isprint(c) && c != '"')
 			putchar(c);
 		else {
 			fputc('\\',stdout);
 			switch(c) {
-#define DO(herp,derp) case herp: fputc(derp,stdout); break;	\
-				DO('"','"');
-				DO('\a','a');
-				DO('\b','b');
-				DO('\f','f');
-				DO('\n','n');
-				DO('\r','n');
-			case '\a':
-			case '\t':
-				fputc('t',stdout);
-				break;
-			case '\n':
-				putc('n',stdout);
-				break;
-			case '\r':
-				putc('r',stdout);
+			case 0: fputc('0',stdout);
+			case '\\': fputc('\\',stdout);
+			case '"': fputc('"',stdout);
+#include "specialescapes.c"
 			default:
-				printf("%03o",c);
-			}
+				checknext = true;
+				last = c;
+			};
 		}
 	}
 	PUTLIT("\";\n");

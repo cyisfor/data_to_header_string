@@ -1,5 +1,6 @@
+#include <stdio.h>
 int main(void) {
-#define DO(herp) printf("case '\\%c':\n\tfputc('%c',stdout);\n\tbreak;",herp,herp);
+#define DO(herp) printf("case '\\%c':\n\tfputc('%c',stdout);\n\tbreak;\n",herp,herp);
 	DO('a');
 	DO('b');
 	DO('f');
@@ -7,5 +8,4 @@ int main(void) {
 	DO('r');
 	DO('t');
 	DO('v');
-	DO('\\');
 }

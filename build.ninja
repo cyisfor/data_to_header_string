@@ -1,4 +1,11 @@
 rule program
   command = gcc $cflags -o $out $in $ldflags
 
-build file2as: program main.c
+rule run
+  command = ./$in > $out.tmp; mv $out.tmp $out
+
+build file2as: program main.c | specialescapes.c
+
+build specialescapes.c: run make_specialescapes
+
+build make_specialescapes: program make_specialescapes.c
