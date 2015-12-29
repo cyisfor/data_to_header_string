@@ -1,0 +1,4 @@
+rule program
+  command = gcc $cflags -o $out $in $ldflags
+
+build file2as: program main.c
