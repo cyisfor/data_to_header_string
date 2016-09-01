@@ -1,10 +1,12 @@
+cflags=-O2
+
 rule program
   command = gcc $cflags -o $out $in $ldflags
 
 rule run
   command = ./$in > $out.tmp && mv $out.tmp $out
 
-build file2as: program main.c | specialescapes.c
+build pack: program main.c | specialescapes.c
 
 build specialescapes.c: run make_specialescapes
 
