@@ -1,5 +1,5 @@
 #include "convert.h"
-#include <stdlib.h> // exit
+#include <stdlib.h> // exit, getenv
 
 int main(void) {
 	const char* name = getenv("name");
