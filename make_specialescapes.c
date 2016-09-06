@@ -1,6 +1,6 @@
 #include <stdio.h>
 int main(void) {
-#define DO(herp) printf("case '\\%c':\n\tfputc('%c',stdout);\n\t++count;\n\tbreak;\n",herp,herp);
+#define DO(herp) printf("case '\\%c':\n\tPUT(\"%c\",1);\n\t++count;\n\tbreak;\n",herp,herp);
 	DO('a');
 	DO('b');
 	DO('f');
