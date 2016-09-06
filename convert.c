@@ -8,7 +8,7 @@
 #define PUT(s,l) write(dest,s,l);
 #define PUTLIT(l) write(dest,l,sizeof(l)-1)
 
-void convert(int dest, const char* name, int source) {
+void convert(const char* name, int dest, int source) {
 	struct stat info;
 	assert(0==fstat(source,&info));
 	ssize_t namelen = strlen(name);
@@ -56,6 +56,4 @@ void convert(int dest, const char* name, int source) {
 		}
 	}
 	PUTLIT("\";\n");
-	
-	return 0;
 }
