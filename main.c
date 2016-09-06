@@ -6,5 +6,5 @@ int main(void) {
 	if(name==NULL)
 		exit(1);
 
-	convert(name,0,1);
+	d2h_convert(name,1,0);
 }

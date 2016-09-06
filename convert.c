@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include <sys/stat.h>
 #include <unistd.h> // write
-#include <stdio.h>
 #include <sys/mman.h>
 
 #include <assert.h>
@@ -13,7 +12,7 @@
 
 char digits[0x10] = "0123456789abcdef";
 
-void convert(const char* name, int dest, int source) {
+void d2h_convert(const char* name, int dest, int source) {
 	struct stat info;
 	char buf[0x100];
 	assert(0==fstat(source,&info));
@@ -25,16 +24,17 @@ void convert(const char* name, int dest, int source) {
 	size_t left = info.st_size;
 	ssize_t amt = 0;
 	while(left) {
-		digit = left & 0xF;
+		char digit = left & 0xF;
 		left = left >> 4;
 		buf[amt++] = digits[digit];
 		assert(amt < 0x100);
 	}
 	// now reverse it...
+	int i = 0;
 	for(i=0;i<amt>>1;++i) {
 		char temp = buf[i];
-		buf[i] = buf[amt-i];
-		buf[amt-i] = temp;
+		buf[i] = buf[amt-i-1];
+		buf[amt-i-1] = temp;
 	}
 	PUT(buf,amt);
 	PUTLIT("L;\n"
@@ -48,8 +48,7 @@ void convert(const char* name, int dest, int source) {
 	char last = 0;
 	bool checknext = false;
 	unsigned char count = 0;
-	int i = 0;
-	for(;i<info.st_size;++i) {
+	for(i=0;i<info.st_size;++i) {
 		if(count > 60) {
 			count = 0;
 			PUTLIT("\"\n\"");
@@ -64,7 +63,7 @@ void convert(const char* name, int dest, int source) {
 			PUT("\\",1);
 			char c = inp[i];
 			switch(c) {
-#define DO(herp,derp) case herp: PUT("\\",1); PUT(derp,1); count += 2; break
+#define DO(herp,derp) case herp: PUT(derp,1); count += 2; break
 				DO(0,"0");
 				DO('\\',"\\");
 				DO('"',"\"");
@@ -74,7 +73,7 @@ void convert(const char* name, int dest, int source) {
 			default:				
 				if(c > 0100) {
 					// we're cool
-					PUT(&digits[c >> 6],1);
+					PUT(&digits[c >> 6 & 007],1);
 					PUT(&digits[c >> 3 & 007],1);
 					PUT(&digits[c >> 0 & 007],1);
 				} else {
@@ -87,17 +86,19 @@ void convert(const char* name, int dest, int source) {
 						// we need 1 zero
 						if(needzeroes)
 							PUT("0",1);
-						PUT(&digits[c >> 3],1);
+						PUT(&digits[c >> 3 & 007],1);
 						PUT(&digits[c & 007],1);
 					} else {
 						// we need 2 zeroes
 						if(needzeroes)
 							PUT("00",2);
-						PUT(&digits[c],1);
+						PUT(&digits[c & 007],1);
 					}
 				}
 			};
 		}
 	}
+	close(source);
 	PUTLIT("\";\n");
+	close(dest);
 }
