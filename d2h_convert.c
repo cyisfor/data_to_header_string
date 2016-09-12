@@ -100,5 +100,5 @@ void d2h_convert(const char* name, int dest, int source) {
 	}
 	close(source);
 	PUTLIT("\";\n");
-	close(dest);
+	//close(dest); can't write multiple strings this way!
 }
