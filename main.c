@@ -1,4 +1,4 @@
-#include "convert.h"
+#include "d2h_convert.h"
 #include <stdlib.h> // exit, getenv
 
 int main(void) {

@@ -6,7 +6,7 @@ rule program
 rule run
   command = ./$in > $out.tmp && mv $out.tmp $out
 
-build pack: program main.c convert.c | specialescapes.c
+build pack: program main.c d2h_convert.c | specialescapes.c
 
 build specialescapes.c: run make_specialescapes
 
