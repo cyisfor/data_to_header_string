@@ -20,16 +20,14 @@ o:
 	mkdir o
 
 # we really don't wanna bother making specialescapes if necessary
-ifeq ($(shell ls specialescapes.c),)
-
-specialescapes.c: make_specialescapes
-	./$< >$@.temp
+specialescapes.c: make_specialescapes.c
+	$(MAKE) make_specialescapes # derp
+	./make_specialescapes >$@.temp
 	mv $@.temp $@
 
 N=make_specialescapes
 make_specialescapes: $(O)
 	$(EXE)
-endif
 
 clean:
 	git clean -ndx
