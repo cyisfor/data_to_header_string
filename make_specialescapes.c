@@ -8,8 +8,10 @@ void DO(char herp) {
 
 int main(void) {
 	// the backslash was already outputted, now go from the raw \whatever to whatever
+#define DOSTR(s,r) puts("case '\\" s "':\n\tPUT(\"" r "\",1);\n\t++count;\n\tbreak;\n");
+	DOSTR("\\","\\\\");
+	DOSTR("\"","\\\"");
 	DO('0');
-	DO('\\');
 	DO('a');
 	DO('b');
 	DO('f');
