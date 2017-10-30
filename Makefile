@@ -14,7 +14,7 @@ o/%.o: %.c | o
 	$(COMPILE)
 
 o/%.d: | %.c o
-	@echo DEP $*; $(CC) -ftabstop=2 -MT o/$*.o -MM -MG $(CFLAGS) -c -o $@ $<
+	echo DEP $*; $(CC) -ftabstop=2 -MT o/$*.o -MM -MG $(CFLAGS) -c -o $@ $(first $|)
 
 o:
 	mkdir o
