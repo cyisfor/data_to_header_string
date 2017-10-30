@@ -17,14 +17,13 @@ o:
 	mkdir o
 
 # we really don't wanna bother making specialescapes if necessary
-ifeq ($(shell ls make_specialescapes),)
-specialescapes.c: make_specialescapes
-else
+ifneq ($(.DEFAULT_GOAL),make_specialescapes)
+$(warn default goal $(.DEFAULT_GOAL))
 specialescapes.c: make_specialescapes.c
 	$(MAKE) make_specialescapes # derp
-endif
 	./make_specialescapes >$@.temp
 	mv $@.temp $@
+endif
 
 N=make_specialescapes
 make_specialescapes: $(O)
