@@ -4,26 +4,26 @@ O=$(patsubst %,o/%.o,$N) \
 $(eval objects:=$$(objects) $(N))
 
 EXE=@echo EXE $@; $(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-COMPILE=echo COMPILE $*; $(CC) -MT o/$*.o -MMD $(CFLAGS) -c -o o/$*.o $<
+COMPILE=@echo COMPILE $*; $(CC) -MT $@ -MMD $(CFLAGS) -c -o $@ $<
 
 N=main d2h_convert
 pack: $(O)
 	$(EXE)
 
-o/%.d o/%.o: %.c | o
+o/%.o: %.c | o
 	$(COMPILE)
+
+o/%.d: | %.c o
+	@echo DEP $*; $(CC) -ftabstop=2 -MT o/$*.o -MM -MG $(CFLAGS) -c -o $@ $(firstword $|)
 
 o:
 	mkdir o
 
 # we really don't wanna bother making specialescapes if necessary
-ifneq ($(DERP),derp)
-$(warn derp $(DERP))
 specialescapes.c: make_specialescapes.c
-	@$(MAKE) make_specialescapes DERP=derp # derp
+	$(MAKE) make_specialescapes # derp
 	./make_specialescapes >$@.temp
 	mv $@.temp $@
-endif
 
 N=make_specialescapes
 make_specialescapes: $(O)
