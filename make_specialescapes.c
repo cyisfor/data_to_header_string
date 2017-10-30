@@ -10,7 +10,6 @@ int main(void) {
 	// the backslash was already outputted, now go from the raw \whatever to whatever
 	DO('0');
 	DO('\\');
-	DO('\"');
 	DO('a');
 	DO('b');
 	DO('f');
