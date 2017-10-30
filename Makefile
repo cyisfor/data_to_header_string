@@ -20,8 +20,7 @@ o:
 ifneq ($(DERP),derp)
 $(warn derp $(DERP))
 specialescapes.c: make_specialescapes.c
-	$(warning derp $(DERP))
-	$(MAKE) make_specialescapes DERP=derp # derp
+	@$(MAKE) make_specialescapes DERP=derp # derp
 	./make_specialescapes >$@.temp
 	mv $@.temp $@
 endif
