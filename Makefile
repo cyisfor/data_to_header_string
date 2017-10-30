@@ -1,10 +1,7 @@
 CFLAGS+=-O2
 
-INC:=.
-ALLN:=common
-
-O=$(patsubst %,o/%.o,$N $(ALLN)) \
-$(eval objects:=$$(objects) $(N)))
+O=$(patsubst %,o/%.o,$N) \
+$(eval objects:=$$(objects) $(N))
 
 EXE=@echo EXE $@; $(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 COMPILE=@echo COMPILE $*; $(CC) -MT $@ -MMD $(CFLAGS) -c -o $@ $<
@@ -26,7 +23,8 @@ specialescapes.c: make_specialescapes
 	./$< >$@.temp
 	mv $@.temp $@
 
-make_specialescapes: make_specialescapes.c
+N=make_specialescapes
+make_specialescapes: $(O)
 	$(EXE)
 
 clean:
@@ -35,4 +33,4 @@ clean:
 	@read
 	git clean -fdx
 
--include $(patsubst %, o/%.d,$(objects) $(ALLN))
+-include $(patsubst %, o/%.d,$(objects))
