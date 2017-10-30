@@ -17,13 +17,17 @@ o:
 	mkdir o
 
 # we really don't wanna bother making specialescapes if necessary
-specialescapes.c:: make_specialescapes.c
+ifeq($(shell make_specialescapes),)
+specialescapes.c: make_specialescapes
+else
+specialescapes.c: make_specialescapes.c
 	$(MAKE) make_specialescapes # derp
+endif
 	./make_specialescapes >$@.temp
 	mv $@.temp $@
 
 N=make_specialescapes
-make_specialescapes:: $(O)
+make_specialescapes: $(O)
 	$(EXE)
 
 clean:
