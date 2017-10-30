@@ -63,10 +63,6 @@ void d2h_convert(const char* name, int dest, int source) {
 			PUT("\\",1);
 			char c = inp[i];
 			switch(c) {
-#define DO(herp,derp) case herp: PUT(derp,1); count += 2; break
-				DO(0,"0");
-				DO('\\',"\\");
-				DO('"',"\"");
 				
 #include "specialescapes.c"
 				
