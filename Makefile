@@ -1,13 +1,38 @@
 CFLAGS+=-O2
 
-EXE=$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+INC:=.
+ALLN:=common
 
-pack: main.c d2h_convert.c specialescapes.c
+O=$(patsubst %,o/%.o,$N $(ALLN)) \
+$(eval objects:=$$(objects) $(N)))
+
+EXE=@echo EXE $@; $(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+COMPILE=@echo COMPILE $*; $(CC) -MT $@ -MMD $(CFLAGS) -c -o $@ $<
+
+N=main d2h_convert
+pack: $(O)
 	$(EXE)
 
-specialescaples.c: make_specialescapes
+o/%.o: %.c | o
+	$(COMPILE)
+
+o/%.d: %.c | o
+	@echo DEP $*; $(CC) -ftabstop=2 -MT o/$*.o -MM -MG $(CFLAGS) -c -o $@ $<
+
+o:
+	mkdir o
+
+specialescapes.c: make_specialescapes
 	./$< >$@.temp
 	mv $@.temp $@
 
 make_specialescapes: make_specialescapes.c
 	$(EXE)
+
+clean:
+	git clean -ndx
+	@echo ^C to not delete
+	@read
+	git clean -fdx
+
+-include $(patsubst %, o/%.d,$(objects) $(ALLN))
