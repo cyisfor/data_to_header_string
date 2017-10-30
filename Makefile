@@ -17,11 +17,11 @@ o:
 	mkdir o
 
 # we really don't wanna bother making specialescapes if necessary
-ifneq ($(.DEFAULT_GOAL),make_specialescapes)
-$(warn default goal $(.DEFAULT_GOAL))
+ifneq ($(DERP),derp)
+$(warn derp $(DERP))
 specialescapes.c: make_specialescapes.c
-	$(warning default goal $(.DEFAULT_GOAL))
-	$(MAKE) make_specialescapes # derp
+	$(warning derp $(DERP))
+	$(MAKE) make_specialescapes DERP=derp # derp
 	./make_specialescapes >$@.temp
 	mv $@.temp $@
 endif
