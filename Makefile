@@ -20,6 +20,7 @@ o:
 ifneq ($(.DEFAULT_GOAL),make_specialescapes)
 $(warn default goal $(.DEFAULT_GOAL))
 specialescapes.c: make_specialescapes.c
+	$(warning default goal $(.DEFAULT_GOAL))
 	$(MAKE) make_specialescapes # derp
 	./make_specialescapes >$@.temp
 	mv $@.temp $@
