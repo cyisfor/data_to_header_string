@@ -4,17 +4,14 @@ O=$(patsubst %,o/%.o,$N) \
 $(eval objects:=$$(objects) $(N))
 
 EXE=@echo EXE $@; $(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-COMPILE=@echo COMPILE $*; $(CC) -MT $@ -MMD $(CFLAGS) -c -o $@ $<
+COMPILE=echo COMPILE $*; $(CC) -MT $@ -MMD $(CFLAGS) -c -o $@ $<
 
 N=main d2h_convert
 pack: $(O)
 	$(EXE)
 
-o/%.o: %.c | o
+o/%.d o/%.o: %.c | o
 	$(COMPILE)
-
-o/%.d: | %.c o
-	@echo DEP $*; $(CC) -ftabstop=2 -MT o/$*.o -MM -MG $(CFLAGS) -c -o $@ $(firstword $|)
 
 o:
 	mkdir o
