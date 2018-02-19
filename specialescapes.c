@@ -1,3 +1,17 @@
+case '\\':
+	PUT("\\",1);
+	++count;
+	break;
+
+case '\"':
+	PUT("\"",1);
+	++count;
+	break;
+
+case '\0':
+	PUT("0",1);
+	++count;
+	break;
 case '\a':
 	PUT("a",1);
 	++count;
