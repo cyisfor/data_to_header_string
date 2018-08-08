@@ -18,6 +18,23 @@ int d2h_max_width = 90;
 bool d2h_define_macro = true;
 bool d2h_static_vars = false;
 
+static void i2a(size_t left, char* buf, int maxlen) {
+		ssize_t amt = 0;
+		while(left) {
+			char digit = left & 0xF;
+			left = left >> 4;
+			buf[amt++] = digits[digit];
+			assert(amt < maxlen);
+		}
+		// now reverse it...
+		int i = 0;
+		for(i=0;i<amt>>1;++i) {
+			char temp = buf[i];
+			buf[i] = buf[amt-i-1];
+			buf[amt-i-1] = temp;
+		}
+}
+
 void d2h_convert(const char* name, int dest, int source) {
 	struct stat info;
 	char buf[0x100];
@@ -35,21 +52,8 @@ void d2h_convert(const char* name, int dest, int source) {
 		PUTLIT("const unsigned long ");
 		PUT(name,namelen);
 		PUTLIT("_length = 0x");
-		size_t left = info.st_size;
-		ssize_t amt = 0;
-		while(left) {
-			char digit = left & 0xF;
-			left = left >> 4;
-			buf[amt++] = digits[digit];
-			assert(amt < 0x100);
-		}
-		// now reverse it...
-		int i = 0;
-		for(i=0;i<amt>>1;++i) {
-			char temp = buf[i];
-			buf[i] = buf[amt-i-1];
-			buf[amt-i-1] = temp;
-		}
+		itoa(info.st_size, buf, 0x100);
+
 		PUT(buf,amt);
 		PUTLIT("L;\n");
 
