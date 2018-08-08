@@ -7,8 +7,8 @@
 #include <sys/mman.h>
 
 #include <assert.h>
-#define PUT(s,l) write(dest,s,l);
-#define PUTLIT(l) write(dest,l,sizeof(l)-1)
+#define PUT(s,l) if(write(dest,s,l));
+#define PUTLIT(l) if(write(dest,l,sizeof(l)-1));
 
 static
 char digits[0x10] = "0123456789abcdef";
@@ -63,7 +63,11 @@ void d2h_convert(const char* name, int dest, int source) {
 	bool needopenquote = true;
 	void checkopenquote(void) {
 		if(needopenquote) {
-			PUTLIT("\n\"");
+			if(d2h_define_macro) {
+				PUTLIT(" \\\n\"");
+			} else {
+				PUTLIT("\n\"");
+			}
 			needopenquote = false;
 		}
 	}
@@ -73,6 +77,7 @@ void d2h_convert(const char* name, int dest, int source) {
 	char last = 0;
 	bool checknext = false;
 	unsigned char count = 0;
+	int i;
 	for(i=0;i<info.st_size;++i) {
 		if(count > d2h_max_width) {
 			count = 0;
@@ -134,6 +139,10 @@ void d2h_convert(const char* name, int dest, int source) {
 	if(needopenquote == false) {
 		PUTLIT("\"");
 	}
-	PUTLIT(";\n");
+	if(d2h_define_macro) {
+		PUTLIT("\n");
+	} else {
+		PUTLIT(";\n");
+	}
 	//close(dest); can't write multiple strings this way!
 }
