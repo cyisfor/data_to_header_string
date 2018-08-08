@@ -17,6 +17,15 @@ int main(void) {
 		}
 	}
 
-
+	{
+		char* maxwid = getenv("width");
+		if(maxwid != NULL) {
+			int maxderp = atoi(maxwid);
+			if(maxderp > 0) {
+				d2h_max_width = maxderp;
+			}
+		}
+	}
+	
 	d2h_convert(name,1,0);
 }

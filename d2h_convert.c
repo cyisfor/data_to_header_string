@@ -10,7 +10,10 @@
 #define PUT(s,l) write(dest,s,l);
 #define PUTLIT(l) write(dest,l,sizeof(l)-1)
 
+static
 char digits[0x10] = "0123456789abcdef";
+
+int d2h_max_width = 90;
 
 void d2h_convert(const char* name, int dest, int source) {
 	struct stat info;
@@ -49,7 +52,7 @@ void d2h_convert(const char* name, int dest, int source) {
 	bool checknext = false;
 	unsigned char count = 0;
 	for(i=0;i<info.st_size;++i) {
-		if(count > 60) {
+		if(count > d2h_max_width) {
 			count = 0;
 			PUTLIT("\"\n\"");
 		}
