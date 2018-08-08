@@ -18,6 +18,6 @@ int main(void) {
 	DO('f');
 	DO('n');
 	DO('r');
-	DO('t');
+//	DO('t');
 	DO('v');
 }

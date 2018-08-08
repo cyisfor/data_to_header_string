@@ -54,13 +54,17 @@ void d2h_convert(const char* name, int dest, int source) {
 			PUTLIT("\"\n\"");
 		}
 
-		if(isprint(inp[i]) && inp[i] != '"') {
+		if((isprint(inp[i]) && inp[i] != '"') || inp[i] == '\t') {
 			PUT(inp+i,1);
 			++count;
+		} else if(inp[i] == '\n') {
+			// have newlines make newlines to keep it pretty
+			PUTLIT("\\n\"\n\"");
+			count = 0;
 		} else {
 			++count;
 			// we have to escape SOMEthing!
-			PUT("\\",1);
+			PUTLIT("\\");
 			char c = inp[i];
 			switch(c) {
 				
