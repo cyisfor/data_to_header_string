@@ -15,40 +15,55 @@ char digits[0x10] = "0123456789abcdef";
 
 int d2h_max_width = 90;
 
+bool d2h_define_macro = true;
+bool d2h_static_vars = false;
+
 void d2h_convert(const char* name, int dest, int source) {
 	struct stat info;
 	char buf[0x100];
 	assert(0==fstat(source,&info));
 	ssize_t namelen = strlen(name);
 
-	PUTLIT("const unsigned long ");
-	PUT(name,namelen);
-	PUTLIT("_length = 0x");
-	size_t left = info.st_size;
-	ssize_t amt = 0;
-	while(left) {
-		char digit = left & 0xF;
-		left = left >> 4;
-		buf[amt++] = digits[digit];
-		assert(amt < 0x100);
-	}
-	// now reverse it...
-	int i = 0;
-	for(i=0;i<amt>>1;++i) {
-		char temp = buf[i];
-		buf[i] = buf[amt-i-1];
-		buf[amt-i-1] = temp;
-	}
-	PUT(buf,amt);
-	PUTLIT("L;\n"
-				 "const unsigned char ");
-	PUT(name,namelen);
-	PUTLIT("[] = \n");
+	if(d2h_define_macro) {
+		PUTLIT("#define ");
+		PUT(name, namelen);
+		PUTLIT(" ");
+	} else {
+		if(d2h_static_vars) {
+			PUTLIT("static\n");
+		}
+		PUTLIT("const unsigned long ");
+		PUT(name,namelen);
+		PUTLIT("_length = 0x");
+		size_t left = info.st_size;
+		ssize_t amt = 0;
+		while(left) {
+			char digit = left & 0xF;
+			left = left >> 4;
+			buf[amt++] = digits[digit];
+			assert(amt < 0x100);
+		}
+		// now reverse it...
+		int i = 0;
+		for(i=0;i<amt>>1;++i) {
+			char temp = buf[i];
+			buf[i] = buf[amt-i-1];
+			buf[amt-i-1] = temp;
+		}
+		PUT(buf,amt);
+		PUTLIT("L;\n");
 
+		if(d2h_static_vars) {
+			PUTLIT("static\n");
+		}
+		PUTLIT("const unsigned char ");
+		PUT(name,namelen);
+		PUTLIT("[] = ");
+	}
 	bool needopenquote = true;
 	void checkopenquote(void) {
 		if(needopenquote) {
-			PUTLIT("\"");
+			PUTLIT("\n\"");
 			needopenquote = false;
 		}
 	}
@@ -62,7 +77,7 @@ void d2h_convert(const char* name, int dest, int source) {
 		if(count > d2h_max_width) {
 			count = 0;
 			if(needopenquote == false) {
-				PUTLIT("\"\n");
+				PUTLIT("\"");
 				needopenquote = true;
 			}
 		}
@@ -74,7 +89,7 @@ void d2h_convert(const char* name, int dest, int source) {
 		} else if(inp[i] == '\n') {
 			// have newlines make newlines to keep it pretty
 			checkopenquote();
-			PUTLIT("\\n\"\n");
+			PUTLIT("\\n\"");
 			needopenquote = true;
 			count = 0;
 		} else {
