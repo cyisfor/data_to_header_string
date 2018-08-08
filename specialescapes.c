@@ -32,10 +32,6 @@ case '\r':
 	PUT("r",1);
 	++count;
 	break;
-case '\t':
-	PUT("t",1);
-	++count;
-	break;
 case '\v':
 	PUT("v",1);
 	++count;

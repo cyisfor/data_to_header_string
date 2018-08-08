@@ -1,6 +1,6 @@
 AC_PREREQ([2.69])
 AC_INIT([data_to_header_string], [1.0], [zaroboogs])
-AC_CONFIG_SRCDIR([src/db.c])
+AC_CONFIG_SRCDIR([d2h_convert.c])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
