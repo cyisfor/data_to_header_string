@@ -43,8 +43,15 @@ void d2h_convert(const char* name, int dest, int source) {
 	PUTLIT("L;\n"
 				 "const unsigned char ");
 	PUT(name,namelen);
-	PUTLIT("[] = \n\"");
+	PUTLIT("[] = \n");
 
+	bool needopenquote = true;
+	void checkopenquote(void) {
+		if(needopenquote) {
+			PUTLIT("\"");
+			needopenquote = false;
+		}
+	}
 	char* inp = mmap(NULL, info.st_size, PROT_READ, MAP_PRIVATE, source, 0);
 	assert(inp != MAP_FAILED);
 
@@ -54,19 +61,26 @@ void d2h_convert(const char* name, int dest, int source) {
 	for(i=0;i<info.st_size;++i) {
 		if(count > d2h_max_width) {
 			count = 0;
-			PUTLIT("\"\n\"");
+			if(needopenquote == false) {
+				PUTLIT("\"\n");
+				needopenquote = true;
+			}
 		}
 
 		if((isprint(inp[i]) && inp[i] != '"') || inp[i] == '\t') {
+			checkopenquote();
 			PUT(inp+i,1);
 			++count;
 		} else if(inp[i] == '\n') {
 			// have newlines make newlines to keep it pretty
-			PUTLIT("\\n\"\n\"");
+			checkopenquote();
+			PUTLIT("\\n\"\n");
+			needopenquote = true;
 			count = 0;
 		} else {
 			++count;
 			// we have to escape SOMEthing!
+			checkopenquote();
 			PUTLIT("\\");
 			char c = inp[i];
 			switch(c) {
@@ -102,6 +116,9 @@ void d2h_convert(const char* name, int dest, int source) {
 		}
 	}
 	close(source);
-	PUTLIT("\";\n");
+	if(needopenquote == false) {
+		PUTLIT("\"");
+	}
+	PUTLIT(";\n");
 	//close(dest); can't write multiple strings this way!
 }
