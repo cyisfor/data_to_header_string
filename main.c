@@ -26,6 +26,20 @@ int main(void) {
 			}
 		}
 	}
+
+	{
+		char* nomacro = getenv("nomacro");
+		if(nomacro) {
+			d2h_define_macro = false;
+		}
+	}
+
+	{
+		char* staticvars = getenv("static");
+		if(staticvars) {
+			d2h_static_vars = true;
+		}
+	}
 	
 	d2h_convert(name,1,0);
 }
