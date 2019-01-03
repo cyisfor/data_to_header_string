@@ -25,7 +25,6 @@ function(pack name filename)
 	add_custom_target(
 		"PACK_${name}"
 		DEPENDS "${output}")
-	add_dependencies(modifications "PACK_${name}")
 endfunction(pack)
 
 add_executable(make_specialescapes
