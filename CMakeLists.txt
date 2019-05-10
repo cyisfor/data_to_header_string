@@ -62,8 +62,14 @@ function(data_to_header name)
 		add_custom_target(
 			"${A_TARGET}"
 			DEPENDS "${header}")
-		target_include_directories("${A_TARGET}" PUBLIC
-			"${CMAKE_CURRENT_BINARY_DIR}")
+		function ("${A_TARGET}_derp")
+			foreach(target IN LISTS ARGV)
+				message(STATUS "Derp (${A_TARGET})")
+				add_dependencies("${target}" "${A_TARGET}")
+				target_include_directories("${target}" PUBLIC
+					"${CMAKE_CURRENT_BINARY_DIR}")
+			endforeach()
+		endfunction()
 	endif()
 endfunction(data_to_header)
 
@@ -87,4 +93,6 @@ data_to_header(second_example
 	NOMACRO
 	TARGET D2HEx2)
 
-add_dependencies(example EX1 D2HEx2)
+EX1_derp(example)
+D2HEx2_derp(example)
+
