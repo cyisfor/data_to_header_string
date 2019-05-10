@@ -28,8 +28,6 @@ function(data_to_header name)
 		set(source "${base}")
 	endif()
 	if(DEFINED A_HEADER)
-		message(STATUS "Ugggh ${A_HEADER} ${name}")
-
 		set(header "${A_HEADER}")
 	else()
 		# in CMAKE_CURRENT_BINARY_DIR though
@@ -60,7 +58,7 @@ function(data_to_header name)
 		MAIN_DEPENDENCY "${source}"
 		DEPENDS data_to_header)
 
-	if(A_TARGET)
+	if(DEFINED A_TARGET)
 		add_custom_target(
 			"${A_TARGET}"
 			DEPENDS "${header}")

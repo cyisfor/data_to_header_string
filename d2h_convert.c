@@ -5,7 +5,7 @@
 #include <sys/stat.h>
 #include <unistd.h> // write
 #include <sys/mman.h>
-#include <stdio.h> // 
+#include <stdio.h> //
 
 #include <assert.h>
 #define PUT(s,l) if(write(dest,s,l));
@@ -35,6 +35,114 @@ static size_t itoa(size_t left, unsigned char* buf, int maxlen) {
 			buf[amt-i-1] = temp;
 		}
 		return amt;
+}
+
+static
+void output_escaped(const unsigned char* inp, size_t size) {
+	bool needopenquote = true;
+	void checkopenquote(void) {
+		if(needopenquote) {
+			if(d2h_define_macro) {
+				PUTLIT(" \\\n\"");
+			} else {
+				PUTLIT("\n\"");
+			}
+			needopenquote = false;
+		}
+	}
+
+	unsigned char count = 0;
+	int i;
+	for(i=0;i<size;++i) {
+		if((isprint(inp[i]) && inp[i] != '"') || inp[i] == '\t') {
+			checkopenquote();
+			PUT(inp+i,1);
+			++count
+		} else if(inp[i] == '\n') {
+			// have newlines make newlines to keep it pretty
+			checkopenquote();
+			PUTLIT("\\n\"");
+			needopenquote = true;
+			count = 0;
+		} else {
+			++count;
+			// we have to escape SOMEthing!
+			checkopenquote();
+			PUTLIT("\\");
+			unsigned char c = inp[i];
+			switch(c) {
+
+#include "specialescapes.c"
+
+			default:
+				fprintf(stderr, "Umm %x %o %o %o %o\n",
+								c,
+								c, (c >> 6 & 007),
+								(c >> 3 & 007),
+								(c >> 0 & 007));
+
+				if(c >= 0100) {
+					// we're cool
+					PUT(&digits[c >> 6 & 007],1);
+					PUT(&digits[c >> 3 & 007],1);
+					PUT(&digits[c >> 0 & 007],1);
+				} else {
+					bool needzeroes = !(i + 1 == size ||
+															count > 60 ||
+															inp[i+1] < '0' ||
+															inp[i+1] > '7');
+					// we can skimp on zeroes if we're ending a quote, or at the end of the file, or the next character isn't 0-7.
+					if(c < 010) {
+						// we need 1 zero
+						if(needzeroes)
+							PUT("0",1);
+						PUT(&digits[c >> 3 & 007],1);
+						PUT(&digits[c & 007],1);
+					} else {
+						// we need 2 zeroes
+						if(needzeroes)
+							PUT("00",2);
+						PUT(&digits[c & 007],1);
+					}
+				}
+			};
+		}
+	}
+	close(source);
+	if(needopenquote == false) {
+		PUTLIT("\"");
+	}
+	if(d2h_define_macro) {
+		PUTLIT("\n");
+	} else {
+		PUTLIT(";\n");
+	}
+	//close(dest); can't write multiple strings this way!
+}
+
+static
+void output_binary(const unsigned char* inp, size_t size) {
+	PUTLIT("{");
+	int i;
+	for(i=0;i<size;++i) {
+		if(i == 0) {
+		} else if((i+1) % d2h_width == 0) {
+			PUTLIT(",\n");
+		} else {
+			PUTLIT(", ");
+		}
+
+		if((isprint(inp[i]) && inp[i] != '\'')) {
+			PUTLIT("'");
+			PUT(inp+i,1);
+			PUTLIT("'");
+		} else {
+			char buf[0x100];
+			size_t amt = itoa(info.st_size, buf, 0x100);
+			PUT(buf, amt);
+		}
+	}
+	PUTLIT("\n}");
 }
 
 void d2h_convert(const unsigned char* name, int dest, int source) {
@@ -70,95 +178,28 @@ void d2h_convert(const unsigned char* name, int dest, int source) {
 		PUT(name,namelen);
 		PUTLIT("[] = ");
 	}
-	bool needopenquote = true;
-	void checkopenquote(void) {
-		if(needopenquote) {
-			if(d2h_define_macro) {
-				PUTLIT(" \\\n\"");
-			} else {
-				PUTLIT("\n\"");
-			}
-			needopenquote = false;
-		}
-	}
+
 	unsigned char* inp = mmap(NULL, info.st_size, PROT_READ, MAP_PRIVATE, source, 0);
 	assert(inp != MAP_FAILED);
 
+	/* first, scan to see which format is best... */
+
 	unsigned char last = 0;
 	bool checknext = false;
-	unsigned char count = 0;
+	int binarychars = 0;
 	int i;
 	for(i=0;i<info.st_size;++i) {
-		if(count > d2h_max_width) {
-			count = 0;
-			if(needopenquote == false) {
-				PUTLIT("\"");
-				needopenquote = true;
-			}
-		}
-
 		if((isprint(inp[i]) && inp[i] != '"') || inp[i] == '\t') {
-			checkopenquote();
-			PUT(inp+i,1);
-			++count;
-		} else if(inp[i] == '\n') {
-			// have newlines make newlines to keep it pretty
-			checkopenquote();
-			PUTLIT("\\n\"");
-			needopenquote = true;
-			count = 0;
-		} else {
-			++count;
-			// we have to escape SOMEthing!
-			checkopenquote();
-			PUTLIT("\\");
-			unsigned char c = inp[i];
-			switch(c) {
-				
-#include "specialescapes.c"
-				
-			default:
-				fprintf(stderr, "Umm %x %o %o %o %o\n",
-								c,
-								c, (c >> 6 & 007),
-								(c >> 3 & 007),
-								(c >> 0 & 007));
-				
-				if(c >= 0100) {
-					// we're cool
-					PUT(&digits[c >> 6 & 007],1);
-					PUT(&digits[c >> 3 & 007],1);
-					PUT(&digits[c >> 0 & 007],1);
-				} else {
-					bool needzeroes = !(i + 1 == info.st_size ||
-															count > 60 ||
-															inp[i+1] < '0' ||
-															inp[i+1] > '7');
-					// we can skimp on zeroes if we're ending a quote, or at the end of the file, or the next character isn't 0-7.
-					if(c < 010) {
-						// we need 1 zero
-						if(needzeroes)
-							PUT("0",1);
-						PUT(&digits[c >> 3 & 007],1);
-						PUT(&digits[c & 007],1);
-					} else {
-						// we need 2 zeroes
-						if(needzeroes)
-							PUT("00",2);
-						PUT(&digits[c & 007],1);
-					}
-				}
-			};
+			continue;
 		}
+		++binarychars;
 	}
-	close(source);
-	if(needopenquote == false) {
-		PUTLIT("\"");
-	}
-	if(d2h_define_macro) {
-		PUTLIT("\n");
+
+	if(binarychars > info.st_size * 2 / 3) {
+		output_binary(inp, info.st_size);
 	} else {
-		PUTLIT(";\n");
+		output_escaped();
 	}
-	//close(dest); can't write multiple strings this way!
+
+
 }
