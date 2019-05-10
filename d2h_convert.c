@@ -14,7 +14,7 @@
 static
 unsigned char digits[0x10] = "0123456789abcdef";
 
-
+float d2h_binary_threshold = 2.0 / 3;
 int d2h_max_width = 90;
 
 bool d2h_define_macro = true;
@@ -225,7 +225,7 @@ void d2h_convert(const unsigned char* name, int dest, int source) {
 					binarychars, info.st_size, 100.0 * binarychars / info.st_size);
 
 
-	if(binarychars > info.st_size * 1 / 2) {
+	if(binarychars > info.st_size * d2h_binary_threshold) {
 		output_binary(dest, inp, info.st_size);
 	} else {
 		output_escaped(dest, inp, info.st_size);

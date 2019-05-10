@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
   puts("Here's the second example:");
   fwrite(second_example, second_example_length, 1, stdout);
 
-	puts("And the third:");
+	puts("\nAnd the third:");
 #include "example_tres.h"
 	fwrite(example_tres, example_tres_length, 1, stdout);
 
