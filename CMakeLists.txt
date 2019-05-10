@@ -77,10 +77,10 @@ add_executable(example example.c)
 data_to_header(EXAMPLE_ONE_YAY
 	HEADER first_example.h
 	SOURCE example1.txt
-	WIDTH 5
 	TARGET EX1)
 data_to_header(second_example
 	BASE example2.txt
+	WIDTH 5
 	STATIC
 	NOMACRO
 	TARGET D2HEx2)
