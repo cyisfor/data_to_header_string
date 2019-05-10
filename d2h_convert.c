@@ -12,17 +12,17 @@
 #define PUTLIT(l) if(write(dest,l,sizeof(l)-1));
 
 static
-char digits[0x10] = "0123456789abcdef";
+unsigned char digits[0x10] = "0123456789abcdef";
 
 int d2h_max_width = 90;
 
 bool d2h_define_macro = true;
 bool d2h_static_vars = false;
 
-static size_t itoa(size_t left, char* buf, int maxlen) {
+static size_t itoa(size_t left, unsigned char* buf, int maxlen) {
 		ssize_t amt = 0;
 		while(left) {
-			char digit = left & 0xF;
+			unsigned char digit = left & 0xF;
 			left = left >> 4;
 			buf[amt++] = digits[digit];
 			assert(amt < maxlen);
@@ -30,16 +30,16 @@ static size_t itoa(size_t left, char* buf, int maxlen) {
 		// now reverse it...
 		int i = 0;
 		for(i=0;i<amt>>1;++i) {
-			char temp = buf[i];
+			unsigned char temp = buf[i];
 			buf[i] = buf[amt-i-1];
 			buf[amt-i-1] = temp;
 		}
 		return amt;
 }
 
-void d2h_convert(const char* name, int dest, int source) {
+void d2h_convert(const unsigned char* name, int dest, int source) {
 	struct stat info;
-	char buf[0x100];
+	unsigned char buf[0x100];
 	assert(0==fstat(source,&info));
 	ssize_t namelen = strlen(name);
 
@@ -81,10 +81,10 @@ void d2h_convert(const char* name, int dest, int source) {
 			needopenquote = false;
 		}
 	}
-	char* inp = mmap(NULL, info.st_size, PROT_READ, MAP_PRIVATE, source, 0);
+	unsigned char* inp = mmap(NULL, info.st_size, PROT_READ, MAP_PRIVATE, source, 0);
 	assert(inp != MAP_FAILED);
 
-	char last = 0;
+	unsigned char last = 0;
 	bool checknext = false;
 	unsigned char count = 0;
 	int i;
@@ -112,13 +112,14 @@ void d2h_convert(const char* name, int dest, int source) {
 			// we have to escape SOMEthing!
 			checkopenquote();
 			PUTLIT("\\");
-			char c = inp[i];
+			unsigned char c = inp[i];
 			switch(c) {
 				
 #include "specialescapes.c"
 				
 			default:
-				fprintf(stderr, "Umm %o %o %o %o\n",
+				fprintf(stderr, "Umm %x %o %o %o %o\n",
+								c,
 								c, (c >> 6 & 007),
 								(c >> 3 & 007),
 								(c >> 0 & 007));
