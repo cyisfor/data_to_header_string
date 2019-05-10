@@ -1,5 +1,7 @@
 #include "first_example.h"
 #include <stdio.h>
+#include <assert.h>
+
 
 int main(int argc, char *argv[]) {
 #ifdef EXAMPLE_ONE_YAY
@@ -14,7 +16,10 @@ int main(int argc, char *argv[]) {
   puts("Here's the second example:");
   fwrite(second_example, second_example_length, 1, stdout);
 
+	puts("And the third:");
 #include "example_tres.h"
 	fwrite(example_tres, example_tres_length, 1, stdout);
+
+	assert(example_tres_length == second_example_length);
 	return 0;
 }
