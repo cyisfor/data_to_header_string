@@ -13,14 +13,15 @@ add_executable(data_to_header
 function(data_to_header name)
 	# TODO: example, docs
 	set(options NOMACRO STATIC)
-	set(oneValueArgs WIDTH BASE SOURCE HEADER TARGET)
-	cmake_parse_arguments(A "${options}" "${oneValueArgs}" "")
+	set(oneValueArgs WIDTH BASE SOURCE TARGET HEADER)
+	cmake_parse_arguments(PARSE_ARGV 1 A "${options}" "${oneValueArgs}" "")
 
 	if(DEFINED A_BASE)
 		set(base "${A_BASE}")
 	else()
 		set(base "${name}")
 	endif()
+	
 	if(DEFINED A_SOURCE)
 		set(source "${A_SOURCE}")
 	else()
@@ -35,19 +36,26 @@ function(data_to_header name)
 
 	get_filename_component(directory "${header}" DIRECTORY)
 	file(MAKE_DIRECTORY "${directory}")
+
+	if(DEFINED A_WIDTH)
+		list(APPEND env "width=${A_WIDTH}")
+	endif()
+	if(DEFINED A_NOMACRO)
+		list(APPEND env "nomacro=1")
+	endif()
+	if(DEFINED A_STATIC)
+		list(APPEND env "static=1")
+	endif()
 	
 	add_custom_command(
 		OUTPUT "${header}"
 		COMMAND "name=${name}"
-		$<IF:WIDTH,width="${WIDTH}",>
-		$<IF:NOMACRO,nomacro=1,>
-		$<IF:STATIC,static=1,>
-		$<TARGET_FILE_NAME:data_to_header>
+		${env}
 		< "${source}" > "$<TARGET_PROPERTY:LOCATION>"
 		MAIN_DEPENDENCY "${source}"
 		DEPENDS data_to_header)
 
-	if(A_TARGET) 
+	if(A_TARGET)
 		add_custom_target(
 			"${A_TARGET}"
 			DEPENDS "${header}")
@@ -72,6 +80,6 @@ data_to_header(second_example
 	BASE example2.txt
 	STATIC
 	NOMACRO
-	TARGET D2H::Ex2)
+	TARGET D2HEx2)
 
-add_dependencies(example EX1 D2H::Ex2)
+add_dependencies(example EX1 D2HEx2)
