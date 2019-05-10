@@ -136,14 +136,23 @@ void output_escaped(int dest, const unsigned char* inp, size_t size) {
 
 static
 void output_binary(int dest, const unsigned char* inp, size_t size) {
+	if(d2h_static_vars) {
+		PUTLIT("(const unsigned char*)")
 	PUTLIT("{\n");
 	int i;
 	for(i=0;i<size;++i) {
 		if(i == 0) {
-		} else if(((i+1) % d2h_max_width) == 0) {
-			PUTLIT(",\n");
 		} else {
-			PUTLIT(", ");
+			PUTLIT(",");
+			if((i+1) % d2h_max_width == 0) {
+				if(d2h_static_vars) {
+					PUTLIT(" \\n");
+				} else {
+					PUTLIT("\n");
+				}
+			} else {
+				PUTLIT(", ");
+			}
 		}
 
 		if((isprint(inp[i]) && inp[i] != '\'')) {
