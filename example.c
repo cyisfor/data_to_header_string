@@ -1,4 +1,5 @@
 #include "first_example.h"
+#include "example2.txt.h"
 int main(int argc, char *argv[]) {
 #ifdef EXAMPLE_ONE_YAY
   puts("Yay, we defined a macro.");

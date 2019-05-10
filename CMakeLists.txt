@@ -16,17 +16,17 @@ function(data_to_header name)
 	set(oneValueArgs WIDTH BASE SOURCE HEADER TARGET)
 	cmake_parse_arguments(A "${options}" "${oneValueArgs}" "")
 
-	if(defined A_BASE)
+	if(DEFINED A_BASE)
 		set(base "${A_BASE}")
 	else()
 		set(base "${name}")
 	endif()
-	if(defined A_SOURCE)
+	if(DEFINED A_SOURCE)
 		set(source "${A_SOURCE}")
 	else()
 		set(source "${base}")
 	endif()
-	if(defined A_HEADER)
+	if(DEFINED A_HEADER)
 		set(header "${A_HEADER}")
 	else()
 		# in CMAKE_CURRENT_BINARY_DIR though
@@ -50,7 +50,7 @@ function(data_to_header name)
 	if(A_TARGET) 
 		add_custom_target(
 			"${A_TARGET}"
-			DEPENDS "${output}")
+			DEPENDS "${header}")
 	endif()
 endfunction(data_to_header)
 
@@ -67,4 +67,11 @@ data_to_header(EXAMPLE_ONE_YAY
 	HEADER first_example.h
 	SOURCE example1.txt
 	WIDTH 5
-	
+	TARGET EX1)
+data_to_header(second_example
+	BASE example2.txt
+	STATIC
+	NOMACRO
+	TARGET D2H::Ex2)
+
+add_dependencies(example EX1 D2H::Ex2)
