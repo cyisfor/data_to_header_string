@@ -1,5 +1,6 @@
 #include "first_example.h"
-#include "example2.txt.h"
+#include <stdio.h>
+
 int main(int argc, char *argv[]) {
 #ifdef EXAMPLE_ONE_YAY
   puts("Yay, we defined a macro.");
@@ -8,7 +9,7 @@ int main(int argc, char *argv[]) {
 #endif
 
 	/* INSIDE a function! */
-#include "example2.h"
+#include "example2.txt.h"
 
   puts("Here's the second example:");
   fwrite(second_example, second_example_length, 1, stdout);

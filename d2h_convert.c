@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <unistd.h> // write
 #include <sys/mman.h>
+#include <stdio.h> // 
 
 #include <assert.h>
 #define PUT(s,l) if(write(dest,s,l));
@@ -116,8 +117,13 @@ void d2h_convert(const char* name, int dest, int source) {
 				
 #include "specialescapes.c"
 				
-			default:				
-				if(c > 0100) {
+			default:
+				fprintf(stderr, "Umm %o %o %o %o\n",
+								c, (c >> 6 & 007),
+								(c >> 3 & 007),
+								(c >> 0 & 007));
+				
+				if(c >= 0100) {
 					// we're cool
 					PUT(&digits[c >> 6 & 007],1);
 					PUT(&digits[c >> 3 & 007],1);
@@ -128,7 +134,7 @@ void d2h_convert(const char* name, int dest, int source) {
 															inp[i+1] < '0' ||
 															inp[i+1] > '7');
 					// we can skimp on zeroes if we're ending a quote, or at the end of the file, or the next character isn't 0-7.
-					if(c > 010) {
+					if(c < 010) {
 						// we need 1 zero
 						if(needzeroes)
 							PUT("0",1);
