@@ -61,3 +61,10 @@ set_source_files_properties(d2h_convert.c
 	PROPERTIES
 	OBJECT_DEPENDS	${CMAKE_CURRENT_BINARY_DIR}/specialescapes.c)
 
+add_executable(example example.c)
+
+data_to_header(EXAMPLE_ONE_YAY
+	HEADER first_example.h
+	SOURCE example1.txt
+	WIDTH 5
+	
