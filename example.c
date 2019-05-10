@@ -13,5 +13,7 @@ int main(int argc, char *argv[]) {
 
   puts("Here's the second example:");
   fwrite(second_example, second_example_length, 1, stdout);
+
+	#include "example_tres.
 	return 0;
 }

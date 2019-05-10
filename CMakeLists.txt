@@ -85,5 +85,12 @@ data_to_header(second_example
 	NOMACRO
 	TARGET D2HEx2)
 
-add_dependencies(example EX1 D2HEx2)
+data_to_header(example_tres
+	BASE example2.txt
+	HEADER example_tres.h
+	STATIC
+	NOMACRO
+	TARGET DERP3)
+
+add_dependencies(example EX1 D2HEx2 DERP3)
 target_include_directories(example PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
