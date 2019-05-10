@@ -52,7 +52,7 @@ function(data_to_header name)
 			"${A_TARGET}"
 			DEPENDS "${output}")
 	endif()
-endfunction(pack)
+endfunction(data_to_header)
 
 add_executable(make_specialescapes
 	make_specialescapes.c)
