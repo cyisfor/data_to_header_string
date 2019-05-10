@@ -11,30 +11,50 @@
 #define PUT(s,l) if(write(dest,s,l));
 #define PUTLIT(l) if(write(dest,l,sizeof(l)-1));
 
-static
-unsigned char digits[0x10] = "0123456789abcdef";
-
 int d2h_max_width = 90;
 
 bool d2h_define_macro = true;
 bool d2h_static_vars = false;
 
 static size_t itoa(size_t left, unsigned char* buf, int maxlen) {
-		ssize_t amt = 0;
-		while(left) {
-			unsigned char digit = left & 0xF;
-			left = left >> 4;
-			buf[amt++] = digits[digit];
-			assert(amt < maxlen);
-		}
-		// now reverse it...
-		int i = 0;
-		for(i=0;i<amt>>1;++i) {
-			unsigned char temp = buf[i];
-			buf[i] = buf[amt-i-1];
-			buf[amt-i-1] = temp;
-		}
-		return amt;
+	static
+		unsigned char digits[0x10] = "0123456789abcdef";
+
+	ssize_t amt = 0;
+	while(left) {
+		unsigned char digit = left & 0xF;
+		left = left >> 4;
+		buf[amt++] = digits[digit];
+		assert(amt < maxlen);
+	}
+	// now reverse it...
+	int i = 0;
+	for(i=0;i<amt>>1;++i) {
+		unsigned char temp = buf[i];
+		buf[i] = buf[amt-i-1];
+		buf[amt-i-1] = temp;
+	}
+	return amt;
+}
+
+static size_t itoa9(size_t left, unsigned char* buf, int maxlen) {
+	static
+		unsigned char digits[0x10] = "0123456789";
+	ssize_t amt = 0;
+	while(left) {
+		unsigned char digit = left % 10;
+		left = left / 10;
+		buf[amt++] = digits[digit];
+		assert(amt < maxlen);
+	}
+	// now reverse it...
+	int i = 0;
+	for(i=0;i<amt>>1;++i) {
+		unsigned char temp = buf[i];
+		buf[i] = buf[amt-i-1];
+		buf[amt-i-1] = temp;
+	}
+	return amt;
 }
 
 static
@@ -118,7 +138,7 @@ void output_binary(int dest, const unsigned char* inp, size_t size) {
 	int i;
 	for(i=0;i<size;++i) {
 		if(i == 0) {
-		} else if((i+1) % d2h_max_width == 0) {
+		} else if(((i+1) % d2h_max_width) == 0) {
 			PUTLIT(",\n");
 		} else {
 			PUTLIT(", ");
@@ -129,6 +149,7 @@ void output_binary(int dest, const unsigned char* inp, size_t size) {
 			PUT(inp+i,1);
 			PUTLIT("'");
 		} else {
+			PUTLIT("0x");
 			char buf[0x100];
 			size_t amt = itoa(inp[i], buf, 0x100);
 			PUT(buf, amt);
