@@ -137,7 +137,8 @@ void output_escaped(int dest, const unsigned char* inp, size_t size) {
 static
 void output_binary(int dest, const unsigned char* inp, size_t size) {
 	if(d2h_static_vars) {
-		PUTLIT("(const unsigned char*)")
+		PUTLIT("(const unsigned char*)");
+	}
 	PUTLIT("{\n");
 	int i;
 	for(i=0;i<size;++i) {
@@ -166,6 +167,10 @@ void output_binary(int dest, const unsigned char* inp, size_t size) {
 		}
 	}
 	PUTLIT("\n}");
+	if(!d2h_static_vars) {
+		PUTLIT(";");
+	}
+	PUTLIT("\n");
 }
 
 void d2h_convert(const unsigned char* name, int dest, int source) {
