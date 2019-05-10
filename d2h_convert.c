@@ -11,14 +11,16 @@
 #define PUT(s,l) if(write(dest,s,l));
 #define PUTLIT(l) if(write(dest,l,sizeof(l)-1));
 
+static
+unsigned char digits[0x10] = "0123456789abcdef";
+
+
 int d2h_max_width = 90;
 
 bool d2h_define_macro = true;
 bool d2h_static_vars = false;
 
 static size_t itoa(size_t left, unsigned char* buf, int maxlen) {
-	static
-		unsigned char digits[0x10] = "0123456789abcdef";
 
 	ssize_t amt = 0;
 	while(left) {
@@ -134,7 +136,7 @@ void output_escaped(int dest, const unsigned char* inp, size_t size) {
 
 static
 void output_binary(int dest, const unsigned char* inp, size_t size) {
-	PUTLIT("{");
+	PUTLIT("{\n");
 	int i;
 	for(i=0;i<size;++i) {
 		if(i == 0) {
@@ -149,9 +151,8 @@ void output_binary(int dest, const unsigned char* inp, size_t size) {
 			PUT(inp+i,1);
 			PUTLIT("'");
 		} else {
-			PUTLIT("0x");
 			char buf[0x100];
-			size_t amt = itoa(inp[i], buf, 0x100);
+			size_t amt = itoa9(inp[i], buf, 0x100);
 			PUT(buf, amt);
 		}
 	}
