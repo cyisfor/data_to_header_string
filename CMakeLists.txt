@@ -33,6 +33,7 @@ function(data_to_header name)
 		# in CMAKE_CURRENT_BINARY_DIR though
 		set(header "${source}.h")
 	endif()
+	get_filename_component(source "${source}" ABSOLUTE)
 
 	get_filename_component(directory "${header}" DIRECTORY)
 	file(MAKE_DIRECTORY "${directory}")
@@ -49,9 +50,11 @@ function(data_to_header name)
 	
 	add_custom_command(
 		OUTPUT "${header}"
-		COMMAND "name=${name}"
+		COMMAND
+		"name=${name}"
 		${env}
-		< "${source}" > "$<TARGET_PROPERTY:LOCATION>"
+		$<TARGET_FILE:data_to_header>
+		< "${source}" > "${header}"
 		MAIN_DEPENDENCY "${source}"
 		DEPENDS data_to_header)
 
@@ -59,6 +62,8 @@ function(data_to_header name)
 		add_custom_target(
 			"${A_TARGET}"
 			DEPENDS "${header}")
+		target_include_directories("${A_TARGET}" PUBLIC
+			"${CMAKE_CURRENT_BINARY_DIR}")
 	endif()
 endfunction(data_to_header)
 
