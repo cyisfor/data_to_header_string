@@ -38,7 +38,7 @@ static size_t itoa(size_t left, unsigned char* buf, int maxlen) {
 }
 
 static
-void output_escaped(const unsigned char* inp, size_t size) {
+void output_escaped(int dest, const unsigned char* inp, size_t size) {
 	bool needopenquote = true;
 	void checkopenquote(void) {
 		if(needopenquote) {
@@ -57,7 +57,7 @@ void output_escaped(const unsigned char* inp, size_t size) {
 		if((isprint(inp[i]) && inp[i] != '"') || inp[i] == '\t') {
 			checkopenquote();
 			PUT(inp+i,1);
-			++count
+			++count;
 		} else if(inp[i] == '\n') {
 			// have newlines make newlines to keep it pretty
 			checkopenquote();
@@ -75,12 +75,6 @@ void output_escaped(const unsigned char* inp, size_t size) {
 #include "specialescapes.c"
 
 			default:
-				fprintf(stderr, "Umm %x %o %o %o %o\n",
-								c,
-								c, (c >> 6 & 007),
-								(c >> 3 & 007),
-								(c >> 0 & 007));
-
 				if(c >= 0100) {
 					// we're cool
 					PUT(&digits[c >> 6 & 007],1);
@@ -108,7 +102,6 @@ void output_escaped(const unsigned char* inp, size_t size) {
 			};
 		}
 	}
-	close(source);
 	if(needopenquote == false) {
 		PUTLIT("\"");
 	}
@@ -117,16 +110,15 @@ void output_escaped(const unsigned char* inp, size_t size) {
 	} else {
 		PUTLIT(";\n");
 	}
-	//close(dest); can't write multiple strings this way!
 }
 
 static
-void output_binary(const unsigned char* inp, size_t size) {
+void output_binary(int dest, const unsigned char* inp, size_t size) {
 	PUTLIT("{");
 	int i;
 	for(i=0;i<size;++i) {
 		if(i == 0) {
-		} else if((i+1) % d2h_width == 0) {
+		} else if((i+1) % d2h_max_width == 0) {
 			PUTLIT(",\n");
 		} else {
 			PUTLIT(", ");
@@ -138,7 +130,7 @@ void output_binary(const unsigned char* inp, size_t size) {
 			PUTLIT("'");
 		} else {
 			char buf[0x100];
-			size_t amt = itoa(info.st_size, buf, 0x100);
+			size_t amt = itoa(inp[i], buf, 0x100);
 			PUT(buf, amt);
 		}
 	}
@@ -189,17 +181,20 @@ void d2h_convert(const unsigned char* name, int dest, int source) {
 	int binarychars = 0;
 	int i;
 	for(i=0;i<info.st_size;++i) {
-		if((isprint(inp[i]) && inp[i] != '"') || inp[i] == '\t') {
+		if((isprint(inp[i]) && inp[i] != '"') || inp[i] == ' ') {
 			continue;
 		}
 		++binarychars;
 	}
+	fprintf(stderr, "Umm %d %ld %lf\n",
+					binarychars, info.st_size, 100.0 * binarychars / info.st_size);
 
-	if(binarychars > info.st_size * 2 / 3) {
-		output_binary(inp, info.st_size);
+
+	if(binarychars > info.st_size * 1 / 2) {
+		output_binary(dest, inp, info.st_size);
 	} else {
-		output_escaped();
+		output_escaped(dest, inp, info.st_size);
 	}
-
-
+	close(source);
+	//close(dest); can't write multiple strings this way!
 }
