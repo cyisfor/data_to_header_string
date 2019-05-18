@@ -72,25 +72,27 @@ set_source_files_properties(d2h_convert.c
 	PROPERTIES
 	OBJECT_DEPENDS	${CMAKE_CURRENT_BINARY_DIR}/specialescapes.c)
 
-add_executable(example example.c)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+	add_executable(example example.c)
 
-data_to_header(EXAMPLE_ONE_YAY
-	HEADER first_example.h
-	SOURCE example1.txt
-	TARGET EX1)
-data_to_header(second_example
-	BASE example2.txt
-	WIDTH 5
-	STATIC
-	NOMACRO
-	TARGET D2HEx2)
+	data_to_header(EXAMPLE_ONE_YAY
+		HEADER first_example.h
+		SOURCE example1.txt
+		TARGET EX1)
+	data_to_header(second_example
+		BASE example2.txt
+		WIDTH 5
+		STATIC
+		NOMACRO
+		TARGET D2HEx2)
 
-data_to_header(example_tres
-	BASE example2.txt
-	HEADER example_tres.h
-	STATIC
-	NOMACRO
-	TARGET DERP3)
+	data_to_header(example_tres
+		BASE example2.txt
+		HEADER example_tres.h
+		STATIC
+		NOMACRO
+		TARGET DERP3)
 
-add_dependencies(example EX1 D2HEx2 DERP3)
-target_include_directories(example PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+	add_dependencies(example EX1 D2HEx2 DERP3)
+	target_include_directories(example PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+endif()
