@@ -59,9 +59,10 @@ function(data_to_header name)
 		DEPENDS data_to_header)
 
 	if(DEFINED A_TARGET)
-		add_custom_target(
-			"${A_TARGET}"
-			DEPENDS "${header}")
+	  file(WRITE "${CMAKE_BINARY_DIR}/cmakesucks.c" "")
+	  add_library("${A_TARGET}" "${header}" "${CMAKE_BINARY_DIR}/cmakesucks.c")
+	  target_include_directories("${A_TARGET}" PUBLIC
+		"${CMAKE_CURRENT_BINARY_DIR}")
 	endif()
 endfunction(data_to_header)
 
